@@ -3,73 +3,705 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Popeye's Plinko &amp; Arm Wrestling</title>
-<meta name="description" content="Popeye's Plinko and the Popeye's Arm Wrestling Challenge scoreboard.">
+<title>Popeyes Plinko</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#f8d4a4;--panel:#ffc77c;--panel2:#ffe3b8;--line:#e0a35a;--text:#3a2410;--muted:#7a5530;--gold:#f2b01e;
-    --display:'Luckiest Guy','Chalkboard SE','Comic Sans MS',Impact,sans-serif}
+  :root{
+    --bg:#f8d4a4; --panel:#ffc77c; --panel2:#ffe3b8; --line:#e0a35a;
+    --text:#3a2410; --muted:#7a5530; --accent:#e07b00; --good:#1f9d63; --bad:#c81e32;
+  }
   *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  body{min-height:100vh;display:flex;flex-direction:column}
-  .sea{flex:1;margin:16px;border:1px solid var(--line);border-radius:16px;padding:40px 20px;display:flex;flex-direction:column;align-items:center;gap:30px;
-    background:
-      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='34'><path d='M0 17 Q20 9 40 17 T80 17 T120 17 T160 17' fill='none' stroke='white' stroke-opacity='.18' stroke-width='2'/></svg>") 0 0/160px 34px repeat,
-      linear-gradient(180deg,#3fa6cf,#1d6a96);
-    animation:sea 14s linear infinite}
-  @keyframes sea{to{background-position:160px 0,0 0}}
-  .title{text-align:center}
-  h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(34px,7vw,60px);line-height:1.1;letter-spacing:1.5px;
-     -webkit-text-stroke:6px var(--gold);paint-order:stroke fill;text-shadow:3px 3px 0 #7a3b00}
-  h1 .a{color:#d91e2a} h1 .b{color:var(--gold)}
-  .sub{margin:12px 0 0;color:#fff;font-size:14px;letter-spacing:2px;text-transform:uppercase;text-shadow:0 1px 3px rgba(0,0,0,.4)}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;width:100%;max-width:860px}
-  .card{display:flex;flex-direction:column;gap:12px;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;
-    box-shadow:0 8px 24px rgba(0,0,0,.25);transition:transform .15s,box-shadow .15s}
-  .card:hover,.card:focus-visible{transform:translateY(-4px) rotate(-.4deg);box-shadow:0 14px 30px rgba(0,0,0,.32);outline:none}
-  .logo{width:64px;height:64px}
-  .card h2{margin:0;font-family:var(--display);font-weight:400;font-size:28px;letter-spacing:1px;color:var(--gold);-webkit-text-stroke:4px #5a2a00;paint-order:stroke fill}
-  .card p{margin:0;color:var(--muted);font-size:15px;line-height:1.45}
-  .tags{display:flex;gap:6px;flex-wrap:wrap}
-  .tag{font-size:11px;font-weight:800;padding:4px 9px;border-radius:20px;background:var(--panel2);border:1px solid var(--line)}
-  .go{margin-top:auto;text-align:center;font-weight:800;font-size:16px;color:#1a1200;padding:12px;border-radius:12px;background:linear-gradient(180deg,#ffc94d,#ffa000);box-shadow:0 6px 18px rgba(255,160,0,.3)}
-  footer{text-align:center;color:var(--muted);font-size:12px;padding:0 16px 16px}
-  @media (prefers-reduced-motion:reduce){.sea{animation:none}.card{transition:none}}
+  html,body{margin:0;height:100%;background:var(--bg);
+    color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
+  .app{display:grid;grid-template-columns:320px 1fr;height:100%;gap:16px;padding:16px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;
+    display:flex;flex-direction:column;gap:18px;overflow:auto}
+  h1{margin:0;font-family:'Luckiest Guy','Chalkboard SE','Comic Sans MS',Impact,sans-serif;font-size:36px;line-height:1.1;letter-spacing:1.5px;font-weight:400;
+     -webkit-text-stroke:5px #f2b01e;paint-order:stroke fill;text-shadow:3px 3px 0 #7a3b00}
+  h1 .pop{color:#d91e2a}
+  h1 .plk{color:#f2b01e}
+  .subtitle{margin:2px 0 0;color:var(--muted);font-size:13px;letter-spacing:1.5px;text-transform:uppercase}
+  .box{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .balance{font-size:30px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+  .row{display:flex;justify-content:space-between;align-items:baseline}
+  input[type=range]{width:100%;margin:12px 0 4px;accent-color:var(--accent);height:24px}
+  input[type=range]:disabled{opacity:.45}
+  .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+  .risk-name{font-weight:700;color:#8a3b00}
+  .info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;font-size:13px;color:var(--muted)}
+  .info b{color:var(--text);font-weight:600}
+  button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:14px 16px;font-weight:700;color:#1a1200}
+  .btn-drop{background:linear-gradient(180deg,#ffc94d,#ffa000);font-size:17px;box-shadow:0 6px 18px rgba(255,160,0,.3)}
+  .btn-drop:hover:not(:disabled){filter:brightness(1.08)}
+  .btn-drop:active:not(:disabled){transform:translateY(1px)}
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line);padding:10px 12px;font-weight:600}
+  .btn-ghost:hover{background:var(--panel2)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .hint{font-size:12px;color:var(--muted);text-align:center;margin-top:-8px}
+  .history{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:28px}
+  .chip{font-size:12px;font-weight:700;padding:5px 8px;border-radius:8px;color:#1a1200;font-variant-numeric:tabular-nums}
+  .stage{position:relative;background:#2a7fa8;border:1px solid var(--line);border-radius:16px;min-height:0;overflow:hidden}
+  canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(3,6,15,.72);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:10}
+  .overlay.hidden{display:none}
+  .modal{width:min(420px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;
+    box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  .modal h2{margin:0 0 4px;font-size:22px}
+  .modal p{margin:0 0 16px;color:var(--muted);font-size:14px}
+  .field{display:flex;align-items:center;background:#fff3df;border:1px solid var(--line);border-radius:12px;padding:0 14px}
+  .field:focus-within{border-color:var(--accent)}
+  .field span{color:var(--muted);font-size:20px}
+  .field input{flex:1;background:transparent;border:0;outline:0;color:var(--text);font-size:24px;font-weight:700;padding:14px 8px;width:100%;font-variant-numeric:tabular-nums}
+  .usd{margin:8px 2px 0;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+  .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 18px}
+  .err{color:var(--bad);font-size:13px;min-height:18px;margin-bottom:6px}
+  .modal .actions{display:flex;gap:10px}
+  .modal .actions button{flex:1}
+  @media (max-width:820px){
+    .app{grid-template-columns:1fr;grid-template-rows:auto 1fr;overflow:auto}
+    .stage{min-height:70vh}
+    html,body{overflow:auto}
+  }
 </style>
 </head>
 <body>
-<main class="sea">
-  <div class="title">
-    <h1><span class="a">Popeye's</span> <span class="b">Games</span></h1>
-    <p class="sub">All aboard · pick your game</p>
-  </div>
 
-  <div class="cards">
-    <a class="card" href="plinko/">
-      <svg class="logo" viewBox="-20 -20 40 40" aria-hidden="true">
-        <circle r="18" fill="#fff3df" stroke="#c81e32" stroke-width="3"/><circle r="14.5" fill="none" stroke="#f2b01e" stroke-width="1.5"/>
-        <g fill="none" stroke="#1b3a6e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="0" cy="-10.5" r="2.6"/><path d="M-5 -6H5M0 -8V9"/><path d="M-8.5 2.9A9 9 0 0 0 8.5 2.9"/></g>
-        <g fill="#1b3a6e"><path d="M-11.7 -.7L-7.3 3.7-9.7 5.4z"/><path d="M11.7 -.7L7.3 3.7 9.7 5.4z"/></g>
-      </svg>
-      <h2>Popeyes Plinko</h2>
-      <p>Fire balls from the anchor cannon, bounce them down the ship's deck and chase the golden multipliers. Climb the risk levels from Very low to Extreme.</p>
-      <div class="tags"><span class="tag">4 tickets per ball</span><span class="tag">8–16 rows</span><span class="tag">Up to 5x</span></div>
-      <span class="go">Play Plinko →</span>
-    </a>
+<div class="app">
+  <aside class="panel">
+    <div>
+      <h1><span class="pop">Popeyes</span> <span class="plk">Plinko</span></h1>
+      <p class="subtitle">4 tickets per ball</p>
+    </div>
 
-    <a class="card" href="arm-wrestling/">
-      <svg class="logo" viewBox="-20 -20 40 40" aria-hidden="true">
-        <circle r="18" fill="#fff3df" stroke="#c81e32" stroke-width="3"/><circle r="14.5" fill="none" stroke="#f2b01e" stroke-width="1.5"/>
-        <path d="M-9 8 L-9 -2 Q-9 -9 -2 -9 L3 -9 Q10 -9 10 -2 L10 3 L4 3 L4 8 Z" fill="#6bb84d" stroke="#1b3a6e" stroke-width="2.4" stroke-linejoin="round"/>
-      </svg>
-      <h2>Arm Wrestling Challenge</h2>
-      <p>The scoreboard for the Popeye's Arm Wrestling Challenge. Beat Sailor, Popeye and Spinach Popeye to join the champions, then draw a random champion.</p>
-      <div class="tags"><span class="tag">3 levels</span><span class="tag">Champions on top</span><span class="tag">Random draw</span></div>
-      <span class="go">Open scoreboard →</span>
-    </a>
+    <div class="box">
+      <div class="row"><span class="lbl">Balance</span><button class="btn-ghost" id="addFunds" style="padding:6px 10px;font-size:12px">+ Add funds</button></div>
+      <div class="balance" id="balance">$0.00</div>
+    </div>
+
+    <div class="box">
+      <div class="row"><span class="lbl">Risk level</span><span class="risk-name" id="riskName">—</span></div>
+      <input type="range" id="risk" min="1" max="9" step="1" value="1" autocomplete="off" aria-label="Risk level">
+      <div class="ticks"><span>Low · 8 rows</span><span>High · 16 rows</span></div>
+      <div class="info">
+        <span>Rows <b id="infoRows"></b></span>
+        <span>Max <b id="infoMax"></b></span>
+        <span>Min <b id="infoMin"></b></span>
+        <span>Ball cost <b>4 tickets</b></span>
+      </div>
+      <div class="info" style="grid-template-columns:1fr"><span>Shots left <b id="shots"></b></span></div>
+    </div>
+
+    <button class="btn-drop" id="drop">Drop ball · 4 tickets ($2.00)</button>
+    <div class="hint">Press <b>Space</b> to drop · 1 ticket = $0.50</div>
+
+    <button class="btn-ghost" id="reset">Reset game</button>
+
+    <div class="box">
+      <div class="row"><span class="lbl">Recent results</span><button class="btn-ghost" id="sound" style="padding:4px 8px;font-size:12px">Sound: on</button></div>
+      <div class="history" id="history"></div>
+    </div>
+  </aside>
+
+  <main class="stage" id="stage"><canvas id="cv"></canvas></main>
+</div>
+
+<div class="overlay" id="modal">
+  <form class="modal" id="modalForm" autocomplete="off">
+    <h2 id="modalTitle">Welcome to Popeyes Plinko</h2>
+    <p>How many tickets would you like to play with? Each ticket is $0.50, and each ball costs 4 tickets.</p>
+    <div class="field"><input id="amount" type="number" inputmode="numeric" min="4" step="1" value="8" aria-label="Tickets"><span>tickets</span></div>
+    <div class="usd" id="amtUsd">= $4.00</div>
+    <div class="quick">
+      <button type="button" class="btn-ghost" data-amt="4">4</button>
+      <button type="button" class="btn-ghost" data-amt="8">8</button>
+      <button type="button" class="btn-ghost" data-amt="12">12</button>
+      <button type="button" class="btn-ghost" data-amt="16">16</button>
+    </div>
+    <div class="err" id="err"></div>
+    <div class="actions">
+      <button type="button" class="btn-ghost" id="cancel" style="display:none">Cancel</button>
+      <button type="submit" class="btn-drop" id="confirm">Start playing</button>
+    </div>
+  </form>
+</div>
+
+<div class="overlay hidden" id="gameover">
+  <div class="modal" style="text-align:center">
+    <h2 style="font-size:30px;color:var(--bad)">Game over</h2>
+    <p>You're out of money — not enough left for another ball (4 tickets).</p>
+    <div class="box" style="margin:0 0 18px"><div class="lbl">Final balance</div><div class="balance" id="goBalance">$0.00</div></div>
+    <div class="actions">
+      <button type="button" class="btn-ghost" id="goAdd">Add funds</button>
+      <button type="button" class="btn-drop" id="goNew">New game</button>
+    </div>
   </div>
-</main>
-<footer>Pick a game to get started.</footer>
+</div>
+
+<script>
+(() => {
+  // ---------- Config ----------
+  const S = 40, VS = 34, TOP = 66, SLOT_H = 46;      // peg spacing, row spacing, drop zone, slot height
+  const PEG_R = 4.5, BALL_R = 8.5, DIV_R = 3.5;
+  const G = 1500, REST = 0.52, DT = 1 / 240;
+  const TICKET_VALUE = 0.5;                           // 1 ticket = $0.50
+  const BALL_COST = 4 * TICKET_VALUE;                 // 4 tickets per ball = $2
+  const MARGIN = 26;
+  const RISK_NAMES = ["Very low","Low","Mild","Moderate","Medium","Elevated","High","Very high","Extreme"];
+
+  // ---------- State ----------
+  let level = 1, rows = 12, W = 0, H = 0, slotTop = 0;
+  const WIN_W = 0.85, LOSE_W = 1.2, MID_GAP = 0.14;    // slot width weights, extra middle peg gap
+  const CENTER_PULL = 400;                            // px/s² constant drift toward centre while falling
+  const CENTER_BIAS = 110;                            // px/s nudge toward centre per peg hit (0 = none)
+  const SHOTS_PER_LEVEL = 5, MAX_LEVEL = 9;           // levels 1-8 are limited, level 9 (Extreme) is unlimited
+  let shotsLeft = SHOTS_PER_LEVEL;
+  let bounds = [];
+  const shoot = {t: 99};
+  let tShip = 0;
+  let pegs = [], mults = [], balls = [], floaters = [], flashes = [], history = [];
+  let balance = 0, started = false, soundOn = true;
+  let ac = null, lastTick = 0;
+
+  // ---------- DOM ----------
+  const $ = id => document.getElementById(id);
+  const cv = $("cv"), ctx = cv.getContext("2d"), stage = $("stage");
+  const riskEl = $("risk"), dropBtn = $("drop"), modal = $("modal");
+
+  const fmt = n => "$" + n.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const fmtM = m => m.toFixed(2).replace(/\.?0+$/, "") + "x";
+
+  // ---------- Multipliers ----------
+  // Shape: centre -> edge curve. Highest risk: 0.25x centre, 5x edges. The curve
+  // exponent is tuned (bisection) so the theoretical return-to-player is ~97%.
+  function binom(n) {
+    const row = [1];
+    for (let k = 1; k <= n; k++) row.push(row[k - 1] * (n - k + 1) / k);
+    const tot = Math.pow(2, n);
+    return row.map(v => v / tot);
+  }
+  function curve(n, C, E, p) {
+    const slots = n + 1, mid = n / 2;
+    return Array.from({length: slots}, (_, i) => C + (E - C) * Math.pow(Math.abs(i - mid) / mid, p));
+  }
+  function buildMults(lv, n) {
+    const t = (lv - 1) / 8;
+    const C = 0.5 - 0.25 * t, E = 2 + 3 * t;
+    const pr = binom(n), target = 0.97;
+    const rtp = p => curve(n, C, E, p).reduce((a, m, i) => a + m * pr[i], 0);
+    let lo = 0.2, hi = 8;
+    for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; (rtp(m) > target) ? lo = m : hi = m; }
+    let out = curve(n, C, E, (lo + hi) / 2).map(m => Math.max(0.25, Math.round(m * 4) / 4));   // multiples of 0.25
+    // Insert a 0.5x slot between a 0.25x slot and a bigger neighbour (0.75x)
+    const withMid = [];
+    out.forEach((m, i) => {
+      if (i > 0) {
+        const a = out[i - 1];
+        if ((a === 0.25 && m >= 0.75) || (m === 0.25 && a >= 0.75)) withMid.push(0.5);
+      }
+      withMid.push(m);
+    });
+    return {out: withMid};
+  }
+
+  // ---------- Board ----------
+  function setLevel(lv) {
+    level = lv; rows = 8 + (lv - 1);
+    const b = buildMults(lv, rows);
+    mults = b.out;
+    W = (rows + 1) * S;
+    const lastY = TOP + (rows - 1) * VS;
+    slotTop = lastY + 30;
+    H = slotTop + SLOT_H;
+    // Slot widths: winning slots (>=1x) are narrower, losing slots (<1x) wider.
+    const wts = mults.map(m => m >= 1 ? Math.max(0.55, WIN_W - 0.075 * (m - 1)) : LOSE_W);   // bigger multiplier = narrower
+    const wsum = wts.reduce((a, b) => a + b, 0);
+    bounds = [0];
+    wts.forEach(w => bounds.push(bounds[bounds.length - 1] + w * W / wsum));
+    // Pegs: spacing is stretched a bit in the middle (and tightened toward the walls)
+    pegs = [];
+    for (let r = 0; r < rows; r++) {
+      const n = r + 3;
+      for (let i = 0; i < n; i++) {
+        if (r === 0 && i === 1) continue;   // no peg at the very top middle
+        const dx = (i - (n - 1) / 2) * S, u = dx / (W / 2);
+        const u2 = u + MID_GAP * (u - u * u * u);
+        pegs.push({x: W / 2 + u2 * (W / 2), y: TOP + r * VS});
+      }
+    }
+    $("riskName").textContent = `${lv} · ${RISK_NAMES[lv - 1]}`;
+    $("infoRows").textContent = rows;
+    $("infoMax").textContent = fmtM(Math.max(...mults));
+    $("infoMin").textContent = fmtM(Math.min(...mults));
+    resize();
+  }
+
+  // Colour by payout: dull driftwood for losses, warming up to a glowing gold jackpot.
+  function slotTier(m) {
+    const max = Math.max(...mults);
+    if (m >= max) return {hex: "#ffd028", tier: 2};           // jackpot gold
+    if (m < 1) return {hex: "#b9a58c", tier: -1};             // driftwood (loss)
+    if (m <= 1.75) return {hex: "#ffe7a0", tier: 0};          // cream
+    if (m <= 3) return {hex: "#ff9a3c", tier: 0};             // orange
+    return {hex: "#f2544a", tier: m >= 0.85 * max && m >= 3 ? 1 : 0};   // hot coral
+  }
+  function slotColor(i, a = 1) {
+    const h = slotTier(mults[i]).hex;
+    return `rgba(${parseInt(h.slice(1, 3), 16)},${parseInt(h.slice(3, 5), 16)},${parseInt(h.slice(5, 7), 16)},${a})`;
+  }
+
+  // ---------- Sound ----------
+  function tick(v) {
+    if (!ac || !soundOn) return;
+    const t = ac.currentTime;
+    if (t - lastTick < 0.02) return;
+    lastTick = t;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "triangle"; o.frequency.value = 520 + Math.random() * 360;
+    g.gain.setValueAtTime(0.05 * Math.min(1, v / 600), t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.09);
+  }
+  function chime(m) {
+    if (!ac || !soundOn) return;
+    const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+    o.type = "sine"; o.frequency.value = m >= 1 ? 660 + Math.min(m, 5) * 120 : 260;
+    g.gain.setValueAtTime(0.09, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.36);
+  }
+
+  // ---------- Game actions ----------
+  function updateUI() {
+    $("balance").textContent = fmt(balance);
+    const unlimited = level === MAX_LEVEL, noShots = !unlimited && shotsLeft <= 0;
+    $("shots").textContent = unlimited ? "Unlimited" : `${shotsLeft} / ${SHOTS_PER_LEVEL}` + (noShots ? " — move to next risk" : "");
+    const can = started && balance >= BALL_COST && !noShots;
+    dropBtn.disabled = !can;
+    dropBtn.textContent = noShots ? "Move to the next risk level" :
+      !started || balance >= BALL_COST ? "Drop ball · 4 tickets (" + fmt(BALL_COST) + ")" : "Add funds to play";
+    riskEl.disabled = balls.length > 0;
+    // game over: can't afford another ball and nothing is still falling
+    if (started && balance < BALL_COST && balls.length === 0 && modal.classList.contains("hidden")) {
+      $("goBalance").textContent = fmt(balance);
+      $("gameover").classList.remove("hidden");
+    }
+  }
+
+  function dropBall() {
+    if (!started || modal.classList.contains("hidden") === false) return;
+    if (balance < BALL_COST) { openModal(true); return; }
+    if (level < MAX_LEVEL && shotsLeft <= 0) return;
+    if (level < MAX_LEVEL) shotsLeft--;
+    balance -= BALL_COST;
+    balls.push({
+      x: W / 2 + (Math.random() - 0.5) * S * 0.5, y: 52,
+      vx: (Math.random() - 0.5) * 30, vy: 320, slow: 0, id: Math.random()
+    });
+    shoot.t = 0;   // fire the anchor cannon
+    updateUI();
+  }
+
+  function land(b) {
+    let slot = 0;
+    while (slot < mults.length - 1 && b.x >= bounds[slot + 1]) slot++;
+    const m = mults[slot], win = BALL_COST * m;
+    balance += win;
+    flashes.push({slot, t: 0});
+    (window.__tally = window.__tally || {})[slot] = ((window.__tally || {})[slot] || 0) + 1;
+    const big = slotTier(m).tier >= 1;
+    floaters.push({x: (bounds[slot] + bounds[slot + 1]) / 2, y: slotTop - 6, t: 0, big, text: (win >= BALL_COST ? "+" : "") + fmt(win), good: win >= BALL_COST});
+    if (big) floaters.push({x: W / 2, y: slotTop - 34, t: 0, big: true, label: true, text: slotTier(m).tier === 2 ? "JACKPOT!" : "BIG WIN!", good: true});
+    history.unshift({m, c: slotColor(slot)});
+    history = history.slice(0, 14);
+    $("history").innerHTML = history.map(h => `<span class="chip" style="background:${h.c}">${fmtM(h.m)}</span>`).join("");
+    chime(m);
+  }
+
+  // ---------- Physics ----------
+  function collideCircle(b, px, py, pr, e) {
+    const dx = b.x - px, dy = b.y - py, min = BALL_R + pr;
+    const d2 = dx * dx + dy * dy;
+    if (d2 >= min * min) return;
+    const d = Math.sqrt(d2) || 0.0001, nx = dx / d, ny = dy / d;
+    b.x = px + nx * min; b.y = py + ny * min;
+    const vn = b.vx * nx + b.vy * ny;
+    if (vn < 0) {
+      b.vx -= (1 + e) * vn * nx; b.vy -= (1 + e) * vn * ny;
+      // tangential friction + tiny randomness for natural, unpredictable bounces
+      const tx = -ny, ty = nx, vt = b.vx * tx + b.vy * ty;
+      b.vx -= vt * 0.04 * tx; b.vy -= vt * 0.04 * ty;
+      b.vx += (Math.random() - 0.5) * 10;
+      // gentle bias: each peg hit nudges the ball toward the centre (stronger the further out it is)
+      b.vx += ((W / 2 - b.x) / (W / 2)) * CENTER_BIAS;
+      if (-vn > 90) tick(-vn);
+    }
+  }
+
+  function step(dt) {
+    for (const b of balls) {
+      b.vy += G * dt;
+      b.vx += ((W / 2 - b.x) / (W / 2)) * CENTER_PULL * dt;
+      b.vx *= 1 - 0.5 * dt; b.vy *= 1 - 0.08 * dt;
+      b.x += b.vx * dt; b.y += b.vy * dt;
+
+      // walls
+      if (b.x < BALL_R) { b.x = BALL_R; b.vx = Math.abs(b.vx) * 0.45; }
+      if (b.x > W - BALL_R) { b.x = W - BALL_R; b.vx = -Math.abs(b.vx) * 0.45; }
+
+      // pegs (cheap vertical reject)
+      if (b.y < slotTop + BALL_R) {
+        for (const p of pegs) {
+          if (Math.abs(p.y - b.y) > BALL_R + PEG_R + 2) continue;
+          collideCircle(b, p.x, p.y, PEG_R, REST);
+        }
+        // slot divider tops
+        if (b.y > slotTop - 20) for (let i = 0; i <= mults.length; i++) collideCircle(b, bounds[i], slotTop, DIV_R, 0.4);
+      }
+
+      // un-stick balls balancing on a peg
+      const sp = Math.hypot(b.vx, b.vy);
+      b.slow = sp < 18 ? b.slow + dt : 0;
+      if (b.slow > 0.5) { b.vx += (Math.random() - 0.5) * 120; b.vy -= 30; b.slow = 0; }
+    }
+
+    // ball-ball collisions
+    for (let i = 0; i < balls.length; i++) for (let j = i + 1; j < balls.length; j++) {
+      const a = balls[i], c = balls[j];
+      const dx = c.x - a.x, dy = c.y - a.y, min = BALL_R * 2, d2 = dx * dx + dy * dy;
+      if (d2 >= min * min || d2 === 0) continue;
+      const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, ov = (min - d) / 2;
+      a.x -= nx * ov; a.y -= ny * ov; c.x += nx * ov; c.y += ny * ov;
+      const rv = (c.vx - a.vx) * nx + (c.vy - a.vy) * ny;
+      if (rv < 0) {
+        const imp = -(1 + 0.5) * rv / 2;
+        a.vx -= imp * nx; a.vy -= imp * ny; c.vx += imp * nx; c.vy += imp * ny;
+      }
+    }
+
+    // landed?
+    for (let i = balls.length - 1; i >= 0; i--) {
+      if (balls[i].y > slotTop + 4) { land(balls[i]); balls.splice(i, 1); updateUI(); }
+    }
+  }
+
+  // ---------- Rendering ----------
+  let vw = 0, vh = 0, dpr = 1, scale = 1, ox = 0, oy = 0;
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    vw = stage.clientWidth; vh = stage.clientHeight;
+    cv.width = Math.max(1, vw * dpr); cv.height = Math.max(1, vh * dpr);
+    // ship spans x: -26..W+26, y: -78 (bow) .. H+30 (stern); keep sea margin around it
+    scale = Math.min(vw / (W + 120), vh / (H + 150));
+    ox = (vw - W * scale) / 2; oy = (vh - (H + 108) * scale) / 2 + 78 * scale;
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+
+  // ----- ship + sea -----
+  function hullPath() {
+    ctx.beginPath();
+    ctx.moveTo(W / 2, -78);
+    ctx.quadraticCurveTo(W + 26, -22, W + 26, 50);
+    ctx.lineTo(W + 26, H + 4);
+    ctx.quadraticCurveTo(W + 26, H + 30, W, H + 30);
+    ctx.lineTo(0, H + 30);
+    ctx.quadraticCurveTo(-26, H + 30, -26, H + 4);
+    ctx.lineTo(-26, 50);
+    ctx.quadraticCurveTo(-26, -22, W / 2, -78);
+    ctx.closePath();
+  }
+
+  function drawSea(t) {
+    const g = ctx.createLinearGradient(0, 0, 0, vh);
+    g.addColorStop(0, "#3fa6cf"); g.addColorStop(1, "#1d6a96");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, vw, vh);
+    ctx.lineWidth = 2; ctx.lineCap = "round";
+    for (let r = 0; r < vh / 34 + 1; r++) {
+      const y = r * 34 + 10;
+      ctx.strokeStyle = `rgba(255,255,255,${r % 2 ? 0.16 : 0.1})`;
+      ctx.beginPath();
+      for (let x = -20; x <= vw + 20; x += 14) {
+        const yy = y + Math.sin(x / 38 + t * 1.2 + r * 1.7) * 4;
+        x === -20 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
+      }
+      ctx.stroke();
+    }
+  }
+
+  // wooden deck planks, drawn in board coordinates and clipped to the hull
+  function drawDeck() {
+    const ph = 46, x0 = -40, y0 = -90, w = W + 80, h = H + 140;
+    const tones = ["#b9824a", "#ae7640", "#b57d46", "#a86f3a"];
+    for (let r = 0; r * ph < h; r++) {
+      const y = y0 + r * ph;
+      ctx.fillStyle = tones[r % 4]; ctx.fillRect(x0, y, w, ph);
+      ctx.strokeStyle = "rgba(70,38,12,.2)"; ctx.lineWidth = 1;
+      for (let g = 0; g < 3; g++) {
+        const gy = y + ph * (0.22 + 0.28 * g);
+        ctx.beginPath(); ctx.moveTo(x0, gy);
+        for (let x = x0; x <= x0 + w; x += 40) ctx.lineTo(x, gy + Math.sin((x + r * 91) / 55 + g * 2) * 1.6);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = "rgba(50,26,8,.5)"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x0, y + ph); ctx.lineTo(x0 + w, y + ph); ctx.stroke();
+      ctx.lineWidth = 1.5;
+      for (let x = x0 + ((r * 131) % 260); x < x0 + w; x += 260) {
+        ctx.strokeStyle = "rgba(50,26,8,.4)";
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + ph); ctx.stroke();
+        ctx.fillStyle = "rgba(40,20,6,.5)";
+        for (const nx of [x - 7, x + 7]) for (const ny of [y + 9, y + ph - 9]) { ctx.beginPath(); ctx.arc(nx, ny, 1.6, 0, 7); ctx.fill(); }
+      }
+    }
+  }
+
+  function drawShip() {
+    // foam / wake around the hull
+    hullPath();
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "rgba(255,255,255,.35)"; ctx.lineWidth = 26; ctx.stroke();
+    ctx.strokeStyle = "rgba(255,255,255,.35)"; ctx.lineWidth = 16; ctx.stroke();
+    // deck
+    ctx.save(); hullPath(); ctx.clip(); drawDeck(); ctx.restore();
+    // hull outline (rail)
+    hullPath();
+    ctx.strokeStyle = "#3d2210"; ctx.lineWidth = 14; ctx.stroke();
+    ctx.strokeStyle = "#7a4a22"; ctx.lineWidth = 9; ctx.stroke();
+    ctx.strokeStyle = "rgba(255,214,150,.45)"; ctx.lineWidth = 1.8; ctx.stroke();
+  }
+
+  function drawAnchor(cx, cy) {
+    const k = shoot.t < 0.35 ? shoot.t / 0.35 : 1;
+    const kick = shoot.t < 0.35 ? Math.sin(k * Math.PI) : 0;       // 0 -> 1 -> 0 recoil
+    ctx.save();
+    ctx.translate(cx, cy - kick * 4);
+    ctx.scale(1 + kick * 0.12, 1 - kick * 0.08);
+    // badge
+    ctx.fillStyle = "#fff3df"; ctx.strokeStyle = "#c81e32"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(0, 0, 18, 0, 7); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = "#ffe500"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(0, 0, 14.5, 0, 7); ctx.stroke();
+    // anchor
+    ctx.strokeStyle = "#1b3a6e"; ctx.fillStyle = "#1b3a6e"; ctx.lineWidth = 2.6; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.beginPath(); ctx.arc(0, -10.5, 2.6, 0, 7); ctx.stroke();                 // ring
+    ctx.beginPath(); ctx.moveTo(-5, -6); ctx.lineTo(5, -6); ctx.stroke();        // stock
+    ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(0, 9); ctx.stroke();          // shank
+    ctx.beginPath(); ctx.arc(0, 0, 9, 0.2 * Math.PI, 0.8 * Math.PI); ctx.stroke(); // arms
+    for (const sx of [-1, 1]) {                                                  // flukes
+      const ex = sx * 9 * Math.cos(0.2 * Math.PI), ey = 9 * Math.sin(0.2 * Math.PI);
+      ctx.beginPath(); ctx.moveTo(ex + sx * 3.2, ey - 3.6); ctx.lineTo(ex - sx * 1.2, ey - 0.8); ctx.lineTo(ex + sx * 0.8, ey + 2.6); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+    // muzzle burst
+    if (shoot.t < 0.4) {
+      const q = shoot.t / 0.4;
+      ctx.strokeStyle = `rgba(255,229,0,${1 - q})`; ctx.lineWidth = 3 * (1 - q) + 0.5;
+      ctx.beginPath(); ctx.arc(cx, cy + 20, 6 + q * 18, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+      ctx.strokeStyle = `rgba(200,30,50,${0.8 * (1 - q)})`; ctx.lineWidth = 2 * (1 - q) + 0.5;
+      ctx.beginPath(); ctx.arc(cx, cy + 20, 3 + q * 11, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+    }
+  }
+
+  function draw(dt) {
+    shoot.t += dt;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, vw, vh);
+
+    const tt = performance.now() / 1000; tShip = tt;
+    drawSea(tt);
+    // the ship rolls gently on the sea
+    const roll = 0.013 * Math.sin(tt * 1.1) + 0.0045 * Math.sin(tt * 2.3 + 1);
+    const bob = 2 * Math.sin(tt * 1.1 + 1.2);
+    ctx.save();
+    ctx.translate(vw / 2, vh / 2 + bob); ctx.rotate(roll); ctx.translate(-vw / 2, -vh / 2);
+    ctx.save();
+    ctx.translate(ox, oy); ctx.scale(scale, scale);
+    drawShip();
+    // light backing so the pegs stay crisp against the wood
+    ctx.save(); hullPath(); ctx.clip();
+    ctx.fillStyle = "rgba(255,236,200,.62)";
+    roundRect(-14, -30, W + 28, H + 48, 14); ctx.fill();
+    ctx.restore();
+
+    // walls
+    const wg = ctx.createLinearGradient(0, 0, 0, H);
+    wg.addColorStop(0, "#fff6b8"); wg.addColorStop(1, "#ffe97a");
+    ctx.fillStyle = wg;
+    roundRect(-10, 30, 10, H - 30, 4); ctx.fill();
+    roundRect(W, 30, 10, H - 30, 4); ctx.fill();
+
+    // slots
+    for (let i = 0; i < mults.length; i++) {
+      const f = flashes.find(f => f.slot === i);
+      const k = f ? Math.sin(Math.min(1, f.t / 0.35) * Math.PI) : 0;
+      const y = slotTop + 8 + k * 6;
+      const ti = slotTier(mults[i]), sx = bounds[i] + 2.5, sw = bounds[i + 1] - bounds[i] - 5, sh = SLOT_H - 8;
+      const pulse = 0.5 + 0.5 * Math.sin(tShip * 4 + i);
+      ctx.save();
+      if (ti.tier >= 1) { ctx.shadowColor = ti.tier === 2 ? "#ffcf2e" : "#ff6a4a"; ctx.shadowBlur = (ti.tier === 2 ? 10 : 6) + pulse * (ti.tier === 2 ? 8 : 4); }
+      if (ti.tier === 2) {   // gold gradient
+        const gg = ctx.createLinearGradient(0, y, 0, y + sh);
+        gg.addColorStop(0, "#fff08a"); gg.addColorStop(0.5, "#ffd028"); gg.addColorStop(1, "#f0a410");
+        ctx.fillStyle = gg;
+      } else if (ti.tier === -1) ctx.fillStyle = ti.hex;      // flat: no shine
+      else {
+        const gg = ctx.createLinearGradient(0, y, 0, y + sh);
+        gg.addColorStop(0, "rgba(255,255,255,.35)"); gg.addColorStop(0.45, "rgba(255,255,255,0)");
+        roundRect(sx, y, sw, sh, 7); ctx.fillStyle = ti.hex; ctx.fill(); ctx.fillStyle = gg;
+      }
+      roundRect(sx, y, sw, sh, 7); ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = ti.tier === 2 ? "#a86b00" : "rgba(90,52,18,.55)"; ctx.lineWidth = ti.tier === 2 ? 1.8 : 1.2;
+      roundRect(sx, y, sw, sh, 7); ctx.stroke();
+      if (ti.tier === 2) {   // twinkling sparkles
+        for (let q = 0; q < 2; q++) {
+          const ph = (tShip * 1.6 + i * 0.37 + q * 0.5) % 1, a = Math.sin(ph * Math.PI), px = sx + sw * (q ? 0.72 : 0.28), py = y + sh * (q ? 0.78 : 0.2), r = 1 + 3.2 * a;
+          ctx.fillStyle = `rgba(255,255,255,${a})`;
+          ctx.beginPath(); ctx.moveTo(px, py - r); ctx.lineTo(px + r * 0.3, py - r * 0.3); ctx.lineTo(px + r, py); ctx.lineTo(px + r * 0.3, py + r * 0.3);
+          ctx.lineTo(px, py + r); ctx.lineTo(px - r * 0.3, py + r * 0.3); ctx.lineTo(px - r, py); ctx.lineTo(px - r * 0.3, py - r * 0.3); ctx.closePath(); ctx.fill();
+        }
+      }
+      const label = fmtM(mults[i]), bigFont = ti.tier >= 1 ? 12 : 11;
+      ctx.fillStyle = ti.tier === -1 ? "#5b4a36" : "#2a1400";
+      ctx.font = `bold ${Math.min(bigFont, (sw - 2) / (label.length * 0.6))}px -apple-system,Segoe UI,Arial`;
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(label, (bounds[i] + bounds[i + 1]) / 2, y + (SLOT_H - 8) / 2);
+    }
+    // dividers
+    ctx.fillStyle = "#8a5a2b";
+    for (let i = 0; i <= mults.length; i++) {
+      ctx.beginPath(); ctx.arc(bounds[i], slotTop, DIV_R, 0, 7); ctx.fill();
+    }
+
+    // pegs
+    for (const p of pegs) {
+      ctx.fillStyle = "rgba(255,243,223,.7)";
+      ctx.beginPath(); ctx.arc(p.x, p.y, PEG_R + 3, 0, 7); ctx.fill();
+      ctx.fillStyle = "#5a3412";
+      ctx.beginPath(); ctx.arc(p.x, p.y, PEG_R, 0, 7); ctx.fill();
+    }
+
+    // anchor launcher
+    drawAnchor(W / 2, 22);
+
+    // balls
+    for (const b of balls) {
+      ctx.fillStyle = "rgba(90,52,18,.25)";
+      ctx.beginPath(); ctx.ellipse(b.x + 2, b.y + 3, BALL_R, BALL_R * 0.9, 0, 0, 7); ctx.fill();
+      const g = ctx.createRadialGradient(b.x - 3, b.y - 3, 1, b.x, b.y, BALL_R);
+      g.addColorStop(0, "#ffd0d4"); g.addColorStop(0.35, "#e63946"); g.addColorStop(1, "#7a0f1c");
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(b.x, b.y, BALL_R, 0, 7); ctx.fill();
+    }
+
+    // floating payouts
+    for (const f of floaters) {
+      ctx.globalAlpha = Math.max(0, 1 - f.t / 1.1);
+      ctx.textAlign = "center";
+      if (f.big) {
+        ctx.font = `bold ${f.label ? 20 : 15}px 'Luckiest Guy',-apple-system,Segoe UI,Arial`;
+        ctx.lineWidth = 4; ctx.lineJoin = "round"; ctx.strokeStyle = "#5a2a00";
+        ctx.strokeText(f.text, f.x, f.y - f.t * 30);
+        ctx.fillStyle = f.label ? "#ffd028" : "#fff3b0";
+      } else {
+        ctx.fillStyle = f.good ? "#167a4c" : "#7a5530";
+        ctx.font = "bold 13px -apple-system,Segoe UI,Arial";
+      }
+      ctx.fillText(f.text, f.x, f.y - f.t * 30);
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+    ctx.restore();   // end of ship sway
+
+    for (const f of flashes) f.t += dt;
+    flashes = flashes.filter(f => f.t < 0.4);
+    for (const f of floaters) f.t += dt;
+    floaters = floaters.filter(f => f.t < 1.1);
+  }
+
+  // ---------- Main loop ----------
+  let last = performance.now(), acc = 0;
+  function frame(now) {
+    const dt = Math.min(0.033, (now - last) / 1000); last = now;
+    acc += dt;
+    while (acc >= DT) { step(DT); acc -= DT; }
+    draw(dt);
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- Modal ----------
+  function openModal(addMode) {
+    $("modalTitle").textContent = addMode ? "Add funds" : "Welcome to Popeyes Plinko";
+    $("confirm").textContent = addMode ? "Add funds" : "Start playing";
+    $("cancel").style.display = started ? "" : "none";
+    $("err").textContent = "";
+    modal.classList.remove("hidden");
+    setTimeout(() => { $("amount").focus(); $("amount").select(); }, 30);
+  }
+  function closeModal() { modal.classList.add("hidden"); }
+
+  $("modalForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const tickets = Math.floor(parseFloat($("amount").value));
+    const v = tickets * TICKET_VALUE;
+    if (!isFinite(v) || v < BALL_COST) { $("err").textContent = "Enter at least 4 tickets (one ball)."; return; }
+    if (v > 1000000) { $("err").textContent = "Maximum is 2,000,000 tickets."; return; }
+    if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {} }
+    if (ac && ac.state === "suspended") ac.resume();
+    balance += v; started = true;
+    closeModal(); updateUI();
+  });
+  const showUsd = () => { const t = Math.floor(parseFloat($("amount").value)); $("amtUsd").textContent = isFinite(t) && t > 0 ? "= " + fmt(t * TICKET_VALUE) : ""; };
+  $("amount").addEventListener("input", showUsd);
+  document.querySelectorAll("[data-amt]").forEach(b => b.addEventListener("click", () => { $("amount").value = b.dataset.amt; showUsd(); }));
+  $("cancel").addEventListener("click", closeModal);
+  $("addFunds").addEventListener("click", () => openModal(true));
+  $("goAdd").addEventListener("click", () => { $("gameover").classList.add("hidden"); openModal(true); });
+  $("goNew").addEventListener("click", () => { $("gameover").classList.add("hidden"); resetGame(); });
+  $("reset").addEventListener("click", resetGame);
+  function resetGame() {
+    $("gameover").classList.add("hidden");
+    balls = []; floaters = []; flashes = []; history = [];
+    $("history").innerHTML = "";
+    balance = 0; started = false;
+    riskEl.value = 1; shotsLeft = SHOTS_PER_LEVEL; setLevel(1);
+    $("amount").value = 8; showUsd();
+    updateUI(); openModal(false);
+  }
+
+  // ---------- Controls ----------
+  // Risk only moves forward, one step at a time; each new level gives a fresh 5 shots.
+  riskEl.addEventListener("input", () => {
+    const v = +riskEl.value;
+    if (balls.length || v < level || v > level + 1) { riskEl.value = level; return; }
+    if (v !== level) { shotsLeft = SHOTS_PER_LEVEL; setLevel(v); updateUI(); }
+  });
+  dropBtn.addEventListener("click", () => { if (balance < BALL_COST) openModal(true); else dropBall(); });
+  $("sound").addEventListener("click", e => { soundOn = !soundOn; e.target.textContent = "Sound: " + (soundOn ? "on" : "off"); });
+  window.addEventListener("keydown", e => {
+    if (e.code === "Space" && modal.classList.contains("hidden") && document.activeElement.tagName !== "BUTTON") {
+      e.preventDefault(); dropBall();
+    }
+    if (e.code === "Escape" && started) closeModal();
+  });
+  new ResizeObserver(resize).observe(stage);
+  window.addEventListener("resize", resize);
+
+  // ---------- Boot ----------
+  riskEl.value = level;   // ignore any slider value the browser restored
+  setLevel(level);
+  updateUI();
+  openModal(false);
+  requestAnimationFrame(frame);
+
+  // test hook (harmless)
+  window.__plinko = {drop: dropBall, state: () => ({balance, balls: balls.length, mults, rows})};
+})();
+</script>
 </body>
 </html>
